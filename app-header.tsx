@@ -27,72 +27,71 @@ import { hexToHsl, hslToHex, calculateContrastColor } from '@/lib/utils';
 import MotivationalMessage from './motivational-message';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
-
 // Define default theme colors (HEX) - These are the app's original palette
 export const DEFAULT_THEME_COLORS = {
   light: {
-    mainColorHex: '#007BFF',       // Original light primary (soft blue)
-    contrastColorHex: '#000000',   // Default contrast for light mode (black timer text)
-    homepageBackgroundHex: '#FFFFFF', // Original light page background (pure white)
-    todolistBackgroundHex: '#FFFFFF', // Original light card background (pure white for To-Do list)
+    primaryHex: '#007BFF',       // Original light primary (soft blue)
+    backgroundHex: '#FFFFFF',    // Original light page background (pure white)
+    cardHex: '#FFFFFF',          // Original light card background (pure white for To-Do list)
+    contrastColorHex: '#000000', // Default contrast (black) for light mode main color
   },
   dark: {
-    mainColorHex: '#0D6EFD',        // Original dark primary (brighter blue)
-    contrastColorHex: '#FFFFFF',   // Default contrast for dark mode (white timer text)
-    homepageBackgroundHex: '#1A202C',  // Original dark page background (dark grey)
-    todolistBackgroundHex: '#2D3748',  // Original dark card background (darker grey for To-Do list)
+    primaryHex: '#0D6EFD',        // Original dark primary (brighter blue)
+    backgroundHex: '#1A202C',    // Original dark page background (dark grey)
+    cardHex: '#2D3748',          // Original dark card background (darker grey for To-Do list)
+    contrastColorHex: '#FFFFFF', // Default contrast (white) for dark mode main color
   },
 };
 
 // Define the Predefined Themes
 export const PREDEFINED_THEMES: Record<string, {
   nameKey: string;
-  light: { mainColorHex: string; homepageBackgroundHex: string; todolistBackgroundHex: string; contrastColorHex?: string; };
-  dark: { mainColorHex: string; homepageBackgroundHex: string; todolistBackgroundHex: string; contrastColorHex?: string; };
+  light: { primaryHex: string; backgroundHex: string; cardHex: string; contrastColorHex?: string; };
+  dark: { primaryHex: string; backgroundHex: string; cardHex: string; contrastColorHex?: string; };
 }> = {
-  'default-theme': {
-    nameKey: 'settingsDialog.themeDefault', // Translation key
+  'default': { // Represents the Focus Flow default theme
+    nameKey: 'settingsDialog.themeDefault',
     light: { ...DEFAULT_THEME_COLORS.light },
     dark: { ...DEFAULT_THEME_COLORS.dark },
   },
-  'ocean-breeze': {
+  'theme-ocean-breeze': {
     nameKey: 'settingsDialog.themeOceanBreeze',
-    light: { mainColorHex: '#17A2B8', homepageBackgroundHex: '#E0F7FA', todolistBackgroundHex: '#B2EBF2' },
-    dark: { mainColorHex: '#20C997', homepageBackgroundHex: '#00333E', todolistBackgroundHex: '#004D40' },
+    light: { primaryHex: '#17A2B8', backgroundHex: '#E0F7FA', cardHex: '#B2EBF2' },
+    dark: { primaryHex: '#20C997', backgroundHex: '#00333E', cardHex: '#004D40' },
   },
-  'sunset-glow': {
+  'theme-sunset-glow': {
     nameKey: 'settingsDialog.themeSunsetGlow',
-    light: { mainColorHex: '#FF8C00', homepageBackgroundHex: '#FFF8E1', todolistBackgroundHex: '#FFECB3' },
-    dark: { mainColorHex: '#E65100', homepageBackgroundHex: '#3E2723', todolistBackgroundHex: '#4E342E' },
+    light: { primaryHex: '#FF8C00', backgroundHex: '#FFF8E1', cardHex: '#FFECB3' },
+    dark: { primaryHex: '#E65100', backgroundHex: '#3E2723', cardHex: '#4E342E' },
   },
-  'forest-canopy': {
+  'theme-forest-canopy': {
     nameKey: 'settingsDialog.themeForestCanopy',
-    light: { mainColorHex: '#28A745', homepageBackgroundHex: '#E8F5E9', todolistBackgroundHex: '#C8E6C9' },
-    dark: { mainColorHex: '#388E3C', homepageBackgroundHex: '#1B5E20', todolistBackgroundHex: '#2E7D32' },
+    light: { primaryHex: '#28A745', backgroundHex: '#E8F5E9', cardHex: '#C8E6C9' },
+    dark: { primaryHex: '#388E3C', backgroundHex: '#1B5E20', cardHex: '#2E7D32' },
   },
-  'modern-minimalist': {
+  'theme-modern-minimalist': {
     nameKey: 'settingsDialog.themeModernMinimalist',
-    light: { mainColorHex: '#6C757D', homepageBackgroundHex: '#F8F9FA', todolistBackgroundHex: '#E9ECEF' },
-    dark: { mainColorHex: '#ADB5BD', homepageBackgroundHex: '#212529', todolistBackgroundHex: '#343A40' },
+    light: { primaryHex: '#6C757D', backgroundHex: '#F8F9FA', cardHex: '#E9ECEF' },
+    dark: { primaryHex: '#ADB5BD', backgroundHex: '#212529', cardHex: '#343A40' },
   },
-  'vibrant-pop': {
+  'theme-vibrant-pop': {
     nameKey: 'settingsDialog.themeVibrantPop',
-    light: { mainColorHex: '#E040FB', homepageBackgroundHex: '#FCE4EC', todolistBackgroundHex: '#F8BBD0' },
-    dark: { mainColorHex: '#D500F9', homepageBackgroundHex: '#311B92', todolistBackgroundHex: '#4527A0' },
+    light: { primaryHex: '#E040FB', backgroundHex: '#FCE4EC', cardHex: '#F8BBD0' },
+    dark: { primaryHex: '#D500F9', backgroundHex: '#311B92', cardHex: '#4527A0' },
   },
-  'crimson-fire': {
+  'theme-crimson-fire': {
     nameKey: 'settingsDialog.themeCrimsonFire',
     light: {
-      mainColorHex: '#DC143C',
+      primaryHex: '#DC143C',
       contrastColorHex: '#000000', // Explicit black for timer text
-      homepageBackgroundHex: '#FFF0F5',
-      todolistBackgroundHex: '#FFE4E1',
+      backgroundHex: '#FFF0F5',
+      cardHex: '#FFE4E1',
     },
     dark: {
-      mainColorHex: '#B22222',
+      primaryHex: '#B22222',
       contrastColorHex: '#000000', // Explicit black for timer text
-      homepageBackgroundHex: '#3C0000',
-      todolistBackgroundHex: '#5A0000',
+      backgroundHex: '#3C0000',
+      cardHex: '#5A0000',
     },
   },
 };
@@ -102,7 +101,7 @@ export type PredefinedThemeId = keyof typeof PREDEFINED_THEMES;
 export default function AppHeader() {
   const { language, setLanguage, t, tFunction } = useLanguage();
   const { toast } = useToast();
-  const { theme: activeThemeSetting, resolvedTheme, setTheme } = useTheme(); // Correctly get theme values
+  const { theme: activeThemeSetting, resolvedTheme, setTheme } = useTheme();
 
   const [isSettingsDialogOpen, setIsSettingsDialogOpen] = useState(false);
 
@@ -111,144 +110,135 @@ export default function AppHeader() {
   const [telegramNotificationsEnabled, setTelegramNotificationsEnabledState] = useLocalStorage<boolean>('telegram-notificationsEnabled', false);
 
   const [showMotivationalMessageSetting, setShowMotivationalMessageSetting] = useLocalStorage<boolean>('focusflow-showMotivationalMessage', true);
-  const [selectedThemeId, setSelectedThemeId] = useLocalStorage<PredefinedThemeId | null>('focusflow-selectedThemeId', null);
+  
+  const [activeThemeClass, setActiveThemeClass] = useLocalStorage<string>('focusflow-active-theme-class', ''); // Default to empty string for Focus Flow default
 
+  const applyStyleToDocument = useCallback((variableName: string, value: string | null) => {
+    if (typeof document !== 'undefined') {
+      if (value) {
+        document.documentElement.style.setProperty(variableName, value);
+      } else {
+        document.documentElement.style.removeProperty(variableName);
+      }
+    }
+  }, []);
 
-  // const applyStyleToDocument = useCallback((variableName: string, value: string | null) => {
-  //   if (typeof document !== 'undefined') {
-  //     if (value) {
-  //       document.documentElement.style.setProperty(variableName, value);
-  //     } else {
-  //       document.documentElement.style.removeProperty(variableName);
-  //     }
-  //   }
-  // }, []);
+  const applyActiveThemeStyles = useCallback(() => {
+    if (typeof document === 'undefined' || !resolvedTheme) return;
 
-
-  // const applyCustomThemeStyles = useCallback(() => {
-  //   if (typeof window === 'undefined') return;
-  //   const currentMode: 'light' | 'dark' = resolvedTheme === 'dark' ? 'dark' : 'light';
-  //   const themeIdToApply = selectedThemeId || 'default-theme';
-  //   const themeConfig = PREDEFINED_THEMES[themeIdToApply] || PREDEFINED_THEMES['default-theme'];
-
-  //   const effectiveColors = {
-  //     mainColorHex: themeConfig[currentMode]?.mainColorHex || DEFAULT_THEME_COLORS[currentMode].mainColorHex,
-  //     homepageBackgroundHex: themeConfig[currentMode]?.homepageBackgroundHex || DEFAULT_THEME_COLORS[currentMode].homepageBackgroundHex,
-  //     todolistBackgroundHex: themeConfig[currentMode]?.todolistBackgroundHex || DEFAULT_THEME_COLORS[currentMode].todolistBackgroundHex,
-  //     contrastColorHex: themeConfig[currentMode]?.contrastColorHex ||
-  //                       (currentMode === 'light' ? '#000000' : calculateContrastColor(themeConfig[currentMode]?.mainColorHex || DEFAULT_THEME_COLORS[currentMode].mainColorHex)),
-  //   };
+    const currentMode = resolvedTheme as 'light' | 'dark';
+    const themeIdToApply = activeThemeClass && activeThemeClass !== '' ? activeThemeClass : 'default';
     
-  //   if (currentMode === 'light' && themeIdToApply !== 'crimson-fire') { // Ensure Crimson Fire's explicit black is respected
-  //       effectiveColors.contrastColorHex = '#000000';
-  //   }
-
-
-  //   // 1. Apply Main Color (Primary)
-  //   const mainColorHsl = hexToHsl(effectiveColors.mainColorHex);
-  //   if (mainColorHsl) {
-  //     applyStyleToDocument(`--user-${currentMode}-primary-h`, `${mainColorHsl.h}`);
-  //     applyStyleToDocument(`--user-${currentMode}-primary-s`, `${mainColorHsl.s}%`);
-  //     applyStyleToDocument(`--user-${currentMode}-primary-l`, `${mainColorHsl.l}%`);
-  //   } else {
-  //     applyStyleToDocument(`--user-${currentMode}-primary-h`, null);
-  //     applyStyleToDocument(`--user-${currentMode}-primary-s`, null);
-  //     applyStyleToDocument(`--user-${currentMode}-primary-l`, null);
-  //   }
+    const themeConfig = PREDEFINED_THEMES[themeIdToApply] || PREDEFINED_THEMES['default'];
     
-  //   // 2. Apply Contrast Color (for timer text primarily)
-  //   applyStyleToDocument('--user-contrast-color', effectiveColors.contrastColorHex);
-  //   localStorage.setItem('theme-derived-contrastColor-hex', JSON.stringify(effectiveColors.contrastColorHex));
-
-  //   // 3. Apply Homepage Background (Primary Page Background) via localStorage for page.tsx
-  //   localStorage.setItem(`theme-custom-${currentMode}-homepageBackground-hex`, JSON.stringify(effectiveColors.homepageBackgroundHex));
-  //   // To reflect immediately on global --background if needed for header or other elements:
-  //   const homepageBgHsl = hexToHsl(effectiveColors.homepageBackgroundHex);
-  //   if (homepageBgHsl) {
-  //     applyStyleToDocument(`--user-${currentMode}-homepageBackground-h`, `${homepageBgHsl.h}`);
-  //     applyStyleToDocument(`--user-${currentMode}-homepageBackground-s`, `${homepageBgHsl.s}%`);
-  //     applyStyleToDocument(`--user-${currentMode}-homepageBackground-l`, `${homepageBgHsl.l}%`);
-  //   } else {
-  //       applyStyleToDocument(`--user-${currentMode}-homepageBackground-h`, null);
-  //       applyStyleToDocument(`--user-${currentMode}-homepageBackground-s`, null);
-  //       applyStyleToDocument(`--user-${currentMode}-homepageBackground-l`, null);
-  //   }
+    let effectiveColors;
+    if (themeConfig) {
+       effectiveColors = themeConfig[currentMode];
+    } else {
+       // Fallback to absolute default if PREDEFINED_THEMES[themeIdToApply] is undefined
+       effectiveColors = DEFAULT_THEME_COLORS[currentMode];
+    }
 
 
-  //   // 4. Persist To-Do List Background HEX for task-list.tsx to apply inline
-  //   localStorage.setItem(`theme-custom-${currentMode}-todolistBackground-hex`, JSON.stringify(effectiveColors.todolistBackgroundHex));
+    // 1. Calculate and set Contrast Color for timer text
+    let finalContrastColorHex = currentMode === 'light' ? '#000000' : '#FFFFFF'; // Default contrasts
+    if (effectiveColors.contrastColorHex) {
+      finalContrastColorHex = effectiveColors.contrastColorHex;
+    } else if (effectiveColors.primaryHex) {
+      finalContrastColorHex = calculateContrastColor(effectiveColors.primaryHex);
+    }
+    // Override for Crimson Fire light mode
+    if (themeIdToApply === 'theme-crimson-fire' && currentMode === 'light') {
+        finalContrastColorHex = '#000000';
+    }
+    
+    applyStyleToDocument('--user-contrast-color', finalContrastColorHex);
+    
+    // 2. Save specific background HEX values to localStorage for components to pick up
+    // These are used for inline styles by page.tsx and task-list.tsx
+    localStorage.setItem(`theme-custom-${currentMode}-homepageBackground-hex`, JSON.stringify(effectiveColors.backgroundHex));
+    localStorage.setItem(`theme-custom-${currentMode}-todolistBackground-hex`, JSON.stringify(effectiveColors.cardHex));
+
+    // Dispatch event so page.tsx and task-list.tsx can react to localStorage changes
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('theme-style-overrides-updated'));
+    }
+
+  }, [resolvedTheme, activeThemeClass, applyStyleToDocument]);
 
 
-  //   if (typeof window !== 'undefined') {
-  //     window.dispatchEvent(new CustomEvent('theme-style-overrides-updated'));
-  //   }
-  // }, [resolvedTheme, selectedThemeId, applyStyleToDocument]);
-
-
+  // Effect to apply the theme class to <html> element
   useEffect(() => {
-    // applyCustomThemeStyles(); // Temporarily disable to ensure defaults from CSS load correctly
-  }, [/* applyCustomThemeStyles */]); // Keep dependency array minimal for now or empty
-
-  // useEffect(() => { // Temporarily disable listeners to avoid JS interference
-  //   const handleStorageChange = (event: StorageEvent) => {
-  //     const relevantKeys = [
-  //       'focusflow-selectedThemeId',
-  //       // ... other theme related keys if any are still actively written by settings
-  //     ];
-  //     if (event.key && (relevantKeys.includes(event.key) || event.key.startsWith('theme-custom-'))) {
-  //       // applyCustomThemeStyles();
-  //     }
-  //      if (event.key === 'focusflow-showMotivationalMessage') {
-  //       setShowMotivationalMessageSetting(JSON.parse(event.newValue || 'true'));
-  //     }
-  //   };
-  //   window.addEventListener('storage', handleStorageChange);
+    if (typeof document === 'undefined') return;
+    const htmlElement = document.documentElement;
     
-  //   const handleSystemThemeChange = () => {
-  //     if (activeThemeSetting === "system") {
-  //       // setTimeout(applyCustomThemeStyles, 0); 
-  //     }
-  //   };
-  //   const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-  //   mediaQuery.addEventListener('change', handleSystemThemeChange);
+    // Remove all known theme classes first
+    Object.keys(PREDEFINED_THEMES).forEach(themeKey => {
+      if (themeKey !== 'default') { // 'default' is not a class, it's the absence of other theme classes
+        htmlElement.classList.remove(themeKey);
+      }
+    });
+
+    // Add the active theme class if it's not the default
+    if (activeThemeClass && activeThemeClass !== '') {
+      htmlElement.classList.add(activeThemeClass);
+    }
+    // After class is applied, re-calculate and apply specific styles like contrast color
+    applyActiveThemeStyles();
+  }, [activeThemeClass, applyActiveThemeStyles]);
+
+
+  // Effect to re-apply styles when theme (light/dark) or selected predefined theme changes
+  useEffect(() => {
+    applyActiveThemeStyles();
+  }, [resolvedTheme, activeThemeClass, applyActiveThemeStyles]);
+
+
+  // Listener for system theme changes (if user setting is "system")
+  useEffect(() => {
+    const handleSystemThemeChange = () => {
+      if (activeThemeSetting === "system") {
+        // applyActiveThemeStyles will be triggered by resolvedTheme change
+      }
+    };
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    mediaQuery.addEventListener('change', handleSystemThemeChange);
+
+    // Listener for when next-themes actually changes the theme attribute
+    const handleThemeChangedEvent = () => {
+      // applyActiveThemeStyles will be triggered by resolvedTheme change
+    };
+    window.addEventListener('themeChanged', handleThemeChangedEvent);
     
-  //   const handleThemeChangedEvent = () => { 
-  //     // setTimeout(applyCustomThemeStyles, 0);
-  //   };
-  //   window.addEventListener('themeChanged', handleThemeChangedEvent);
+    // Listener for storage changes (e.g., theme changed in another tab)
+    const handleStorageChange = (event: StorageEvent) => {
+      if (event.key === 'focusflow-active-theme-class') {
+        setActiveThemeClass(event.newValue || '');
+      }
+      if (event.key === 'focusflow-showMotivationalMessage') {
+        setShowMotivationalMessageSetting(JSON.parse(event.newValue || 'true'));
+      }
+    };
+    window.addEventListener('storage', handleStorageChange);
 
-  //   return () => {
-  //     window.removeEventListener('storage', handleStorageChange);
-  //     mediaQuery.removeEventListener('change', handleSystemThemeChange);
-  //     window.removeEventListener('themeChanged', handleThemeChangedEvent);
-  //   };
-  // }, [/* applyCustomThemeStyles, */ resolvedTheme, activeThemeSetting]);
+    return () => {
+      mediaQuery.removeEventListener('change', handleSystemThemeChange);
+      window.removeEventListener('themeChanged', handleThemeChangedEvent);
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, [activeThemeSetting, setActiveThemeClass, setShowMotivationalMessageSetting, applyActiveThemeStyles]);
 
 
-  const handleSaveThemeSettings = useCallback((newSelectedThemeId: PredefinedThemeId) => {
-    setSelectedThemeId(newSelectedThemeId);
-    // applyCustomThemeStyles(); // Will be re-triggered by selectedThemeId change via its useEffect dependency
+  const handleSaveActiveThemeClass = useCallback((newThemeClass: string) => {
+    setActiveThemeClass(newThemeClass); // This will trigger the useEffect to apply the class and styles
     toast({ title: t('settingsDialog.themeSettingsSaved') });
-  }, [setSelectedThemeId, t, toast /*, applyCustomThemeStyles */]);
+  }, [setActiveThemeClass, t, toast]);
 
-
-  const handleResetThemeSettings = useCallback(() => {
-    setSelectedThemeId(null); // Setting to null will make applyCustomThemeStyles use 'default-theme'
-    // // Clear specific user HSL variables
-    // const currentMode = resolvedTheme === 'dark' ? 'dark' : 'light';
-    // ['primary', 'homepageBackground'].forEach(target => {
-    //   ['h', 's', 'l'].forEach(comp => {
-    //     applyStyleToDocument(`--user-${currentMode}-${target}-${comp}`, null);
-    //   });
-    // });
-    // applyStyleToDocument('--user-contrast-color', null);
-    // localStorage.removeItem(`theme-custom-${currentMode}-homepageBackground-hex`);
-    // localStorage.removeItem(`theme-custom-${currentMode}-todolistBackground-hex`);
-    // localStorage.removeItem('theme-derived-contrastColor-hex');
-
-    // applyCustomThemeStyles(); // Re-apply defaults
+  const handleResetToDefaultTheme = useCallback(() => {
+    setActiveThemeClass(''); // Set to empty string for default theme
+    // applyActiveThemeStyles will be called by the useEffect watching activeThemeClass
     toast({ title: t('settingsDialog.themeSettingsReset') });
-  }, [setSelectedThemeId, t, toast, resolvedTheme /*, applyStyleToDocument, applyCustomThemeStyles*/]);
+  }, [setActiveThemeClass, t, toast]);
 
 
   const handleLanguageChange = (value: string) => {
@@ -343,25 +333,18 @@ export default function AppHeader() {
     
     // Clear motivational message setting
     localStorage.removeItem('focusflow-showMotivationalMessage');
-    setShowMotivationalMessageSetting(true); // Reset to default
+    setShowMotivationalMessageSetting(true);
 
-    // Clear theme selection
-    setSelectedThemeId(null);
-    // const modes: ('light' | 'dark')[] = ['light', 'dark'];
-    // modes.forEach(mode => {
-    //   applyStyleToDocument(`--user-${mode}-primary-h`, null);
-    //   applyStyleToDocument(`--user-${mode}-primary-s`, null);
-    //   applyStyleToDocument(`--user-${mode}-primary-l`, null);
-    //   applyStyleToDocument(`--user-${mode}-homepageBackground-h`, null);
-    //   applyStyleToDocument(`--user-${mode}-homepageBackground-s`, null);
-    //   applyStyleToDocument(`--user-${mode}-homepageBackground-l`, null);
-    //   localStorage.removeItem(`theme-custom-${mode}-homepageBackground-hex`);
-    //   localStorage.removeItem(`theme-custom-${mode}-todolistBackground-hex`);
-    // });
-    // applyStyleToDocument('--user-contrast-color', null);
-    // localStorage.removeItem('theme-derived-contrastColor-hex');
-    
-    // setTimeout(applyCustomThemeStyles, 0); // Re-apply defaults
+    // Clear theme selection & specific background localStorage items
+    setActiveThemeClass(''); // Resets to default theme class
+    localStorage.removeItem('focusflow-active-theme-class');
+    const modes: ('light' | 'dark')[] = ['light', 'dark'];
+    modes.forEach(mode => {
+      localStorage.removeItem(`theme-custom-${mode}-homepageBackground-hex`);
+      localStorage.removeItem(`theme-custom-${mode}-todolistBackground-hex`);
+    });
+    // The useEffect for activeThemeClass will re-run and call applyActiveThemeStyles,
+    // which will remove user CSS variables and reset contrast color.
 
     toast({
       title: t('settingsDialog.clearAllDataSuccessToastTitle'),
@@ -374,16 +357,12 @@ export default function AppHeader() {
   };
 
   const toggleTheme = () => {
-    if (resolvedTheme === "dark") {
-      setTheme("light")
-    } else {
-      setTheme("dark")
-    }
+    setTheme(resolvedTheme === "dark" ? "light" : "dark");
+    // The useEffect listening to resolvedTheme will trigger applyActiveThemeStyles
      if (typeof window !== 'undefined') {
-      window.dispatchEvent(new Event('themeChanged'));
+      window.dispatchEvent(new Event('themeChanged')); // For legacy listener, if any
     }
-  }
-
+  };
 
   return (
     <>
@@ -439,7 +418,7 @@ export default function AppHeader() {
                   </TooltipContent>
                 </Tooltip>
                 <DialogContent 
-                  className="flex flex-col w-[95vw] max-w-md h-auto max-h-[85vh] p-0 overflow-hidden rounded-lg shadow-2xl 
+                  className="flex flex-col w-[95vw] max-w-md h-auto max-h-[85vh] p-0 overflow-y-auto rounded-lg shadow-2xl 
                             sm:w-[90vw] sm:max-w-xl sm:h-auto sm:max-h-[90vh] 
                             md:max-w-2xl 
                             lg:max-w-3xl 
@@ -457,9 +436,9 @@ export default function AppHeader() {
                     onClearAllData={handleClearAllData}
                     onClose={() => setIsSettingsDialogOpen(false)}
                     
-                    currentSelectedThemeId={selectedThemeId || 'default-theme'}
-                    onSaveThemeSettings={handleSaveThemeSettings} // Will be a no-op for style changes for now
-                    onResetThemeSettings={handleResetThemeSettings} // Will be a no-op for style changes for now
+                    currentActiveThemeClass={activeThemeClass}
+                    onSaveActiveThemeClass={handleSaveActiveThemeClass}
+                    onResetToDefaultTheme={handleResetToDefaultTheme}
                     predefinedThemes={PREDEFINED_THEMES}
                     defaultThemeColors={DEFAULT_THEME_COLORS} 
                     resolvedTheme={resolvedTheme || 'light'}
@@ -490,3 +469,5 @@ export default function AppHeader() {
     </>
   );
 }
+
+    
