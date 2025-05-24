@@ -1,0 +1,154 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+}
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+
+    --primary: 211 100% 50%; /* Original Soft Blue */
+    --primary-foreground: 0 0% 100%; /* White */
+
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --accent: 33 100% 50%; /* Original Orange/Yellow */
+    --accent-foreground: 0 0% 100%; /* White */
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 211 100% 50%; /* Original Soft Blue for ring */
+
+    --radius: 0.5rem;
+
+    /* Chart colors - Using fixed defaults for now */
+    --chart-1: 211 100% 50%; /* Primary */
+    --chart-2: 33 100% 50%; /* Accent */
+    --chart-3: 120 60% 50%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 211 100% 60%; /* Brighter Blue */
+    --primary-foreground: 222.2 47.4% 11.2%; /* Darker Text */
+
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 33 100% 60%; /* Brighter Orange/Yellow */
+    --accent-foreground: 222.2 47.4% 11.2%; /* Darker Text */
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 211 100% 60%; /* Brighter Blue for ring */
+
+    /* Chart colors - Using fixed defaults for now */
+    --chart-1: 211 100% 60%; /* Primary Dark */
+    --chart-2: 33 100% 60%; /* Accent Dark */
+    --chart-3: 120 50% 60%;
+    --chart-4: 43 70% 70%;
+    --chart-5: 27 80% 70%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+}
+
+/* Confetti Animation */
+.confetti-piece {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background-color: hsl(var(--primary));
+  opacity: 0;
+  animation: confetti-fall 3s ease-out forwards;
+}
+
+@keyframes confetti-fall {
+  0% {
+    opacity: 1;
+    transform: translateY(-100px) rotate(0deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(100vh) rotate(720deg);
+  }
+}
+
+/* Subtle pulse animation for timer */
+@keyframes subtle-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.65; }
+}
+
+.animate-subtle-pulse {
+  animation: subtle-pulse 2s infinite ease-in-out;
+}
+
+/* Accordion animations from ShadCN - preserve */
+@keyframes accordion-down {
+  from { height: 0; }
+  to { height: var(--radix-accordion-content-height); }
+}
+
+@keyframes accordion-up {
+  from { height: var(--radix-accordion-content-height); }
+  to { height: 0; }
+}
+
+/* Motivational Message Animation */
+@keyframes slide-in-fade-in-bottom-right {
+  0% {
+    opacity: 0;
+    transform: translateY(20px) translateX(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) translateX(0);
+  }
+}
+
+.animate-slide-in-fade-in-bottom-right {
+  animation: slide-in-fade-in-bottom-right 0.5s ease-out forwards;
+}
