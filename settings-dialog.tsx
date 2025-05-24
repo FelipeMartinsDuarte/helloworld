@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -9,9 +9,9 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
-import { BellDot, Link2Off, Trash2, Palette as PaletteIcon, Settings as SettingsIcon, Sun, Moon } from 'lucide-react';
+import { BellDot, Link2Off, Trash2, Palette as PaletteIcon, Settings as SettingsIcon } from 'lucide-react';
 import { useLanguage, getTranslationFunction } from '@/contexts/language-context';
-import { cn, hexToHsl, hslToHex, calculateContrastColor } from '@/lib/utils';
+import { cn } from '@/lib/utils';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -24,7 +24,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import type { PREDEFINED_THEMES, DEFAULT_THEME_COLORS, PredefinedThemeId } from './app-header'; 
+import type { PREDEFINED_THEMES, DEFAULT_THEME_COLORS } from './app-header'; // Assuming these are exported from AppHeader
 
 interface SettingsDialogProps {
   currentTelegramSettings: {
@@ -35,17 +35,17 @@ interface SettingsDialogProps {
   onTelegramSettingsSave: (botToken: string, chatId: string, enabled: boolean) => Promise<void>;
   onTelegramUnlink: () => void;
   onClearAllData: () => void;
-  onClose: () => void; 
+  onCloseDialog: () => void;
 
   predefinedThemes: typeof PREDEFINED_THEMES;
   defaultThemeColors: typeof DEFAULT_THEME_COLORS;
-  currentSelectedThemeId: PredefinedThemeId | null;
-  onSaveThemeSettings: (themeId: PredefinedThemeId) => void; // Will not apply live styles for now
-  onResetThemeSettings: () => void; // Will not apply live styles for now
+  currentActiveThemeClass: string;
+  onSaveActiveThemeClass: (themeClass: string) => void;
+  onResetToDefaultTheme: () => void;
 
   showMotivationalMessageSetting: boolean;
   onToggleMotivationalMessageSetting: (enabled: boolean) => void;
-  resolvedTheme: string;
+  resolvedTheme: 'light' | 'dark';
 }
 
 const SettingsDialog: React.FC<SettingsDialogProps> = ({
@@ -53,11 +53,12 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({
   onTelegramSettingsSave,
   onTelegramUnlink,
   onClearAllData,
+  onCloseDialog,
   predefinedThemes,
-  defaultThemeColors, 
-  currentSelectedThemeId,
-  onSaveThemeSettings, // Will be a no-op for styles
-  onResetThemeSettings, // Will be a no-op for styles
+  defaultThemeColors,
+  currentActiveThemeClass,
+  onSaveActiveThemeClass,
+  onResetToDefaultTheme,
   showMotivationalMessageSetting,
   onToggleMotivationalMessageSetting,
   resolvedTheme,
@@ -70,47 +71,11 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({
   const [isClearDataAlertOpen, setIsClearDataAlertOpen] = useState(false);
   const [isResetThemeAlertOpen, setIsResetThemeAlertOpen] = useState(false);
 
-  const [selectedThemeIdForRadio, setSelectedThemeIdForRadio] = useState<PredefinedThemeId>(currentSelectedThemeId || 'default-theme');
-  
-  // const [currentLightMainColorHex, setCurrentLightMainColorHex] = useState(defaultThemeColors.light.mainColorHex);
-  // const [currentLightHomepageBgHex, setCurrentLightHomepageBgHex] = useState(defaultThemeColors.light.homepageBackgroundHex);
-  // const [currentLightTodolistBgHex, setCurrentLightTodolistBgHex] = useState(defaultThemeColors.light.todolistBackgroundHex);
-  // const [currentDarkMainColorHex, setCurrentDarkMainColorHex] = useState(defaultThemeColors.dark.mainColorHex);
-  // const [currentDarkHomepageBgHex, setCurrentDarkHomepageBgHex] = useState(defaultThemeColors.dark.homepageBackgroundHex);
-  // const [currentDarkTodolistBgHex, setCurrentDarkTodolistBgHex] = useState(defaultThemeColors.dark.todolistBackgroundHex);
-  // const [useMainForContrast, setUseMainForContrast] = useState(true);
-
-
-  // useEffect(() => { // Temporarily disable live updates from settings
-  //   const mode = resolvedTheme === 'dark' ? 'dark' : 'light';
-  //   // const themeSettings = onGetStoredThemeSettings(mode);
-  //   // if (mode === 'light') {
-  //   //   setCurrentLightMainColorHex(themeSettings.mainColorHex || defaultThemeColors.light.mainColorHex);
-  //   //   setCurrentLightHomepageBgHex(themeSettings.homepageBackgroundHex || defaultThemeColors.light.homepageBackgroundHex);
-  //   //   setCurrentLightTodolistBgHex(themeSettings.todolistBackgroundHex || defaultThemeColors.light.todolistBackgroundHex);
-  //   // } else {
-  //   //   setCurrentDarkMainColorHex(themeSettings.mainColorHex || defaultThemeColors.dark.mainColorHex);
-  //   //   setCurrentDarkHomepageBgHex(themeSettings.homepageBackgroundHex || defaultThemeColors.dark.homepageBackgroundHex);
-  //   //   setCurrentDarkTodolistBgHex(themeSettings.todolistBackgroundHex || defaultThemeColors.dark.todolistBackgroundHex);
-  //   // }
-  //   // setUseMainForContrast(themeSettings.useMainForContrast ?? true);
-  //   setSelectedThemeIdForRadio(currentSelectedThemeId || 'default-theme');
-  // }, [resolvedTheme, currentSelectedThemeId, defaultThemeColors]);
-
+  const [selectedThemeClassInDialog, setSelectedThemeClassInDialog] = useState(currentActiveThemeClass);
 
   useEffect(() => {
-    setSelectedThemeIdForRadio(currentSelectedThemeId || 'default-theme');
-  }, [currentSelectedThemeId]);
-
-  const handleSaveTheme = () => {
-    onSaveThemeSettings(selectedThemeIdForRadio); // Will save to localStorage but not apply live styles
-  };
-
-  const handleResetTheme = () => {
-    onResetThemeSettings(); // Will reset localStorage but not apply live styles
-    setSelectedThemeIdForRadio('default-theme');
-    setIsResetThemeAlertOpen(false);
-  };
+    setSelectedThemeClassInDialog(currentActiveThemeClass);
+  }, [currentActiveThemeClass]);
 
   useEffect(() => {
     setDialogTelegramBotToken(currentTelegramSettings.botToken);
@@ -133,16 +98,28 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({
   const handleConfirmClearData = () => {
     onClearAllData();
     setIsClearDataAlertOpen(false);
+    // onCloseDialog(); // Consider if dialog should close after data clear
+  };
+
+  const handleSaveTheme = () => {
+    onSaveActiveThemeClass(selectedThemeClassInDialog);
+  };
+
+  const handleResetTheme = () => {
+    onResetToDefaultTheme();
+    setSelectedThemeClassInDialog(''); // Reset local radio state to default theme class
+    setIsResetThemeAlertOpen(false);
   };
 
   return (
     <div className="flex flex-col bg-background h-full">
       <DialogHeader className="p-4 sm:p-6 flex flex-row justify-between items-center border-b shrink-0">
         <DialogTitle className="text-xl sm:text-2xl font-semibold">{t('settingsDialog.title')}</DialogTitle>
+        {/* Default X close button from DialogContent will handle closing */}
       </DialogHeader>
 
-      <Tabs defaultValue="general" className="flex-grow flex flex-col sm:flex-row min-h-0"> {/* Removed overflow-hidden from Tabs */}
-        <TabsList className="flex flex-row sm:flex-col sm:h-auto w-full sm:w-48 md:w-64 border-b sm:border-b-0 sm:border-r p-2 sm:p-4 space-x-1 sm:space-x-0 sm:space-y-1 bg-muted/30 items-stretch justify-start rounded-none shrink-0 overflow-x-auto sm:overflow-x-visible sm:overflow-y-auto">
+      <Tabs defaultValue="general" className="flex-grow flex flex-col sm:flex-row min-h-0">
+        <TabsList className="flex flex-row sm:flex-col sm:h-auto w-full sm:w-48 md:w-60 border-b sm:border-b-0 sm:border-r p-2 sm:p-4 space-x-1 sm:space-x-0 sm:space-y-1 bg-muted/30 items-stretch justify-start rounded-none shrink-0 overflow-x-auto sm:overflow-x-visible sm:overflow-y-auto">
           <TabsTrigger value="general" className="justify-start px-3 py-2 text-sm sm:text-base data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:font-semibold hover:bg-muted/50 rounded-md shrink-0 sm:shrink">
             <SettingsIcon className="mr-2 h-4 w-4 sm:h-5 sm:w-5" /> {t('settingsDialog.generalTab')}
           </TabsTrigger>
@@ -154,7 +131,7 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({
           </TabsTrigger>
         </TabsList>
 
-        <div className="flex-grow p-4 sm:p-6 overflow-y-auto min-h-0"> {/* This div handles scroll for tab content */}
+        <div className="flex-grow p-4 sm:p-6 overflow-y-auto min-h-0">
           <TabsContent value="general" className="mt-0 space-y-6">
             <div>
               <h3 className="text-lg sm:text-xl font-semibold mb-3">{t('settingsDialog.motivationalMessageSectionTitle')}</h3>
@@ -175,7 +152,7 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({
             </div>
             <Separator />
             <div>
-              <h3 className="text-lg sm:text-xl font-semibold mb-3">{t('settingsDialog.generalSectionTitle')}</h3>
+              <h3 className="text-lg sm:text-xl font-semibold mb-3">{t('settingsDialog.dataManagementSectionTitle')}</h3>
               <p className="text-sm text-muted-foreground mb-4">
                 {t('settingsDialog.clearAllDataDescription')}
               </p>
@@ -193,7 +170,7 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
-                    <AlertDialogCancel>{t('settingsDialog.cancel')}</AlertDialogCancel>
+                    <AlertDialogCancel onClick={() => setIsClearDataAlertOpen(false)}>{t('settingsDialog.cancel')}</AlertDialogCancel>
                     <AlertDialogAction onClick={handleConfirmClearData} className="bg-destructive hover:bg-destructive/90">
                       {t('settingsDialog.confirm')}
                     </AlertDialogAction>
@@ -204,50 +181,66 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({
           </TabsContent>
 
           <TabsContent value="appearance" className="mt-0 space-y-4">
-             <RadioGroup
-                value={selectedThemeIdForRadio}
-                onValueChange={(value) => setSelectedThemeIdForRadio(value as PredefinedThemeId)}
+            <div>
+              <h3 className="text-lg sm:text-xl font-semibold mb-3">{t('settingsDialog.selectThemePrompt')}</h3>
+              <RadioGroup
+                value={selectedThemeClassInDialog}
+                onValueChange={(value) => setSelectedThemeClassInDialog(value)}
                 className="space-y-3"
               >
-                {Object.entries(predefinedThemes).map(([themeId, themeData]) => (
-                  <div key={themeId} className="flex items-center space-x-3 p-3 border rounded-md hover:bg-muted/30 cursor-pointer">
-                    <RadioGroupItem value={themeId} id={themeId} />
-                    <Label htmlFor={themeId} className="flex-grow cursor-pointer flex flex-col sm:flex-row items-start sm:items-center gap-1 sm:gap-2 text-sm">
-                       <div className="flex gap-1.5 mt-1 sm:mt-0 shrink-0">
-                          <span className="inline-block w-4 h-4 rounded-sm border" style={{ backgroundColor: themeData.light.mainColorHex }}></span>
-                          <span className="inline-block w-4 h-4 rounded-sm border" style={{ backgroundColor: themeData.light.homepageBackgroundHex }}></span>
-                          <span className="inline-block w-4 h-4 rounded-sm border" style={{ backgroundColor: themeData.light.todolistBackgroundHex }}></span>
-                       </div>
-                       {t(themeData.nameKey)}
-                    </Label>
-                  </div>
-                ))}
-              </RadioGroup>
+                {Object.entries(predefinedThemes).map(([themeId, themeData]) => {
+                  const effectiveColors = themeData[resolvedTheme] || themeData.light; // Fallback to light for swatches if somehow mode is undefined
+                  const currentThemeNameKey = themeId === '' ? 'settingsDialog.themeDefaultFocusFlow' : themeData.nameKey;
+                  
+                  // Determine colors for default theme swatches if themeId is for default
+                  const defaultSwatchColors = themeId === '' 
+                    ? (defaultThemeColors[resolvedTheme] || defaultThemeColors.light)
+                    : effectiveColors;
 
-            <div className="flex flex-col sm:flex-row justify-between items-center gap-3 pt-4 border-t mt-4">
+                  return (
+                    <div key={themeId} className="flex items-center space-x-3 p-3 border rounded-md hover:bg-muted/30 cursor-pointer">
+                      <RadioGroupItem value={themeId} id={themeId} />
+                      <Label htmlFor={themeId} className="flex-grow cursor-pointer flex flex-col sm:flex-row items-start sm:items-center gap-1 sm:gap-2 text-sm">
+                        <div className="flex gap-1.5 mt-1 sm:mt-0 shrink-0">
+                            <span className="inline-block w-4 h-4 rounded-sm border" style={{ backgroundColor: defaultSwatchColors.primaryHex }}></span>
+                            <span className="inline-block w-4 h-4 rounded-sm border" style={{ backgroundColor: defaultSwatchColors.backgroundHex }}></span>
+                            <span className="inline-block w-4 h-4 rounded-sm border" style={{ backgroundColor: defaultSwatchColors.cardHex }}></span>
+                        </div>
+                        {t(currentThemeNameKey)}
+                      </Label>
+                    </div>
+                  );
+                })}
+              </RadioGroup>
+            </div>
+
+            <Separator />
+
+            <div className="flex flex-col sm:flex-row justify-between items-center gap-3 pt-2">
               <AlertDialog open={isResetThemeAlertOpen} onOpenChange={setIsResetThemeAlertOpen}>
                 <AlertDialogTrigger asChild>
-                   <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" className="w-full sm:w-auto">
                     {t('settingsDialog.resetThemeSettings')}
                   </Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent>
                   <AlertDialogHeader>
                     <AlertDialogTitle>{t('settingsDialog.confirmResetThemeTitle')}</AlertDialogTitle>
-                     <AlertDialogDescription>
-                      {tFunction('settingsDialog', 'confirmResetThemeMessage', resolvedTheme === 'dark' ? t('themeToggle.dark') : t('themeToggle.light'))}
+                    <AlertDialogDescription>
+                       {tFunction('settingsDialog', 'confirmResetThemeMessage', resolvedTheme)}
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
-                    <AlertDialogCancel>{t('settingsDialog.cancel')}</AlertDialogCancel>
+                    <AlertDialogCancel onClick={() => setIsResetThemeAlertOpen(false)}>{t('settingsDialog.cancel')}</AlertDialogCancel>
                     <AlertDialogAction onClick={handleResetTheme}>
                       {t('settingsDialog.confirm')}
                     </AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>
-
-              <Button onClick={handleSaveTheme} size="sm">{t('settingsDialog.saveThemeSettings')}</Button>
+              <Button onClick={handleSaveTheme} size="sm" className="w-full sm:w-auto">
+                {t('settingsDialog.saveThemeSettings')}
+              </Button>
             </div>
           </TabsContent>
 
@@ -297,6 +290,7 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({
                     variant="outline"
                     onClick={handleUnlink}
                     disabled={!currentTelegramSettings.botToken && !currentTelegramSettings.chatId && !currentTelegramSettings.enabled}
+                    className="w-full sm:w-auto"
                   >
                     <Link2Off className="mr-2 h-4 w-4" />
                     {t('settingsDialog.unlinkTelegram')}
@@ -314,3 +308,5 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({
 };
 
 export default SettingsDialog;
+
+    
